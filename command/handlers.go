@@ -23,6 +23,7 @@ import (
 	"github.com/morningconsult/go-elasticsearch-alerts/command/alert/file"
 	"github.com/morningconsult/go-elasticsearch-alerts/command/alert/slack"
 	"github.com/morningconsult/go-elasticsearch-alerts/command/alert/sns"
+	"github.com/morningconsult/go-elasticsearch-alerts/command/alert/wechat"
 	"github.com/morningconsult/go-elasticsearch-alerts/command/query"
 	"github.com/morningconsult/go-elasticsearch-alerts/config"
 	"golang.org/x/xerrors"
@@ -106,6 +107,12 @@ func buildMethod(output *config.OutputConfig) (alert.Method, error) { // nolint:
 			return nil, xerrors.Errorf("error decoding SNS output configuration: %v", err)
 		}
 		method, err = sns.NewAlertMethod(snsConfig)
+	case "wechat":
+		wechatConfig := new(wechat.AlertMethodConfig)
+		if err = mapstructure.Decode(output.Config, wechatConfig); err != nil {
+			return nil, xerrors.Errorf("error decoding WeChat output configuration: %v", err)
+		}
+		method, err = wechat.NewAlertMethod(wechatConfig)
 	default:
 		return nil, xerrors.Errorf("output type %q is not supported", output.Type)
 	}
